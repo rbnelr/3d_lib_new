@@ -1,0 +1,76 @@
+TODO:
+
+ fullscreen control from both threads
+
+--------------------------------------------------------------------------------------
+DONE:
+
+--------------------------------------------------------------------------------------
+
+New 3d_lib ideas:
+ Better way to link lib into project
+ -> creating a new project that uses the lib should take a few clicks not 5 minutes
+ -> i'll try to create a project template for projects which use the lib
+ 
+ run entire user code in seperate thread from window message pump, to prevent fix message pump freezing my rendering when resizing the window (it currently renders one frame for every pixel the user moves the mouse), context menus also cause the freeze?
+ -> seperate Window from Appication to make thread seperation more clear
+ -> input has to be given to rendering thread via a threadsafe queue (windows size is also part of input)
+ -> some things like mouse hiding (for camera movement) and fullscreen have to be put into the window thread, so we need a second syncronized way of the game controlling these things, 2nd. queue? or just mutexed bools?
+
+ proper header source seperation should hopefully fix compiler errors being completetly wrong
+ -> should also make including any header of the lib always get it's proper dependencies (currently it has some order dependencies)
+ -> can functions be inlined when they are in a source file at all? wrapper stuff and small functions like almost the entire vector lib might have to be made inline (in header file)
+  -> can you do link time code gen for libraries that are seperate
+   -> yes, test that this actually works
+ 
+ everything should by default be compiled to one exe (currently the common shaders always have to be put next to the exe)
+ -> just have all shaders be in the exe (put them in the source code? or should i somehow bake them during build?)
+ -> since dynamic shader editing is cool and usefull, either implement a good shader editor in engine, or allow writing the shaders out to a folder <exe_name>_shaders/ and then load them instead of the baked in shaders
+ 
+ draw is a method of mesh
+ -> instead of draw_cube, let the user type  gen_cube<Vertex>(pos, ...).upload().draw(shader, pos, ...)
+ -> this way you can control the lifetime of the generated cube mesh and the uploaded vbo
+ -> all 3 steps are in one line, but can be seperated into multiple if desired
+ -> .upload() would create a new vbo each time, while .upload(&gpu_mesh) would stream the mesh into an existing vbo
+
+ Cpu_Mesh.append(other_mesh);
+ -> allows for easy building up of complex meshes, and even allows multiple objects to be drawn in one line with one drawcall
+  -> gen_sphere<Vertex>(0).append( gen_cube<Vertex>(v3(+1,0,0)) ).upload().draw(); // nice
+ -> although this is not the most efficient way of doing this (extra vertex list and copy)
+
+ is the current way of handling indexed and non indexed meshes good?
+ -> inheritance for indexed and non indexed?
+
+ wireframe with indexed meshes?
+ -> since we know if it's GL_TRIANGLES etc. and we have the mesh in the draw call, we would need to gen a mesh that we can draw with GL_LINES since the baycentric pixel approach does not work with an indexed mesh
+     and if we can do that, we can just gen a non indexed mesh from the indexed one, which is trivial
+ -> the interesting question is if you can cache the wireframe ready mesh, which would ideally be inside the actual mesh, (or in a mesh manager?)
+
+ should i have a "manager" for every resource, shaders for ex. currently need to be registered somewhere, to allow them to be reloaded when their files change, unless the user needs to manually call update() on all shaders he has (and shaders are spread over the engine itself, unility code, user code, etc.)
+ -> user gets shared_ptr, while manager keeps weak_ptr?
+ -> managers actually can make code simpler, more efficient and easier to debug
+ -> entity component systems often are also implemented with one manager per component, so there is one component that does all the physics etc. which means that the physics engine has all its required data in it's own control, and it is even more cache coherent since you can put that data sequentially in memory
+
+ entity component system
+ -> i am already startig to see uses for one
+  -> i want everything to be moveable in imgui and ideally per mouse gizmos, so a Draggable component or a draggable bool in a Position component
+ -> always being able to show (and edit) velocity/accel vectors would be nice
+ -> 1. it would be possible to add/remove to a entity or even create new components at runtime (a script in unity basicly represents a component Draggable.cs == DraggableComponent)
+ -> 2. i think there are cases where it makes sense to have 2 or more instances of the same component attached to the same entity
+  -> this means, that just putting the components into a struct is not enough for an entity
+  -> i would probably need something like a map from Comp type to a list of all the comps of this type
+   -> how to do this efficiently?
+    -> could put "normal" components like Position directly into  the entity via compile time pointers, and have "dynamic" components put into a map
+	    you could then turn inefficient components (always scripts?) into efficient ones by implementing a manager in c++ and putting them into the enitity structs that need it
+	-> basicly, a dynamic entity that could have 100 components or 0 is a completely generic entity, which means that is is determined entirely at runtime, ie. one struct type for all of these
+	    but entitys that dont need to change components can be implemented as specialized struct in c++ and don't require the aforementioned component map, which makes them more efficient
+		and there can of course be mixed versions of these, which could also be in a (simple?) inheritance hierarcy (for what purpose?)
+
+ vertex layouts???
+ -> for performance and coding reasons i'm pretty sure i always need a struct with the actual attributes as members
+ -> how do this ?????
+
+ -> init Application object (which should contain all data used by the program) after having inited opengl context, so that Application scope Texture2D tex = Texture2D::from_file("blah") calls dont fail since opengl is not inited
+  -> so no globals and Application class statics
+
+--------------------------------------------------------------------------------------

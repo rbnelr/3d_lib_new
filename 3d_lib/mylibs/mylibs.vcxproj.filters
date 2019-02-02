@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="vector_math.hpp" />
+    <ClInclude Include="matricies.hpp" />
+    <ClInclude Include="vector_tv2.hpp" />
+    <ClInclude Include="vector_tv3.hpp" />
+    <ClInclude Include="vector_tv4.hpp" />
+    <ClInclude Include="quaternion.hpp" />
+    <ClInclude Include="basic_typedefs.hpp" />
+    <ClInclude Include="math.hpp" />
+    <ClInclude Include="compiler_specific.hpp" />
+    <ClInclude Include="preprocessor_stuff.hpp" />
+    <ClInclude Include="float_precision.hpp" />
+    <ClInclude Include="threadsafe_queue.hpp" />
+    <ClInclude Include="defer.hpp" />
+    <ClInclude Include="parse.hpp" />
+    <ClInclude Include="string.hpp" />
+    <ClInclude Include="timer.hpp" />
+    <ClInclude Include="file_io.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="parse.cpp" />
+    <ClCompile Include="file_io.cpp" />
+    <ClCompile Include="string.cpp" />
+  </ItemGroup>
+</Project>
